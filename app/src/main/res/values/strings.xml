@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name" translatable="false">fsend</string>
+    <string name="choose_recipient">Choose Recipient</string>
+</resources>
