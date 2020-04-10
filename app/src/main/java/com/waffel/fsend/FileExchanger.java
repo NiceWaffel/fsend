@@ -51,7 +51,7 @@ public class FileExchanger {
 		if(!Pattern.matches(IP_PATTERN, ip))
 			throw new IllegalArgumentException("Invalid ip formatting");
 
-		client.start(ip, port, 3000, false);
+		client.start(ip, port, 5000, false);
 		boolean ret = client.sendIS(is, filename);
 		client.stop();
 

@@ -145,7 +145,7 @@ public class  Client {
   public boolean isServerReachable() {
     try {
       Socket tempSocket = new Socket();
-      tempSocket.connect(this.address, 10);
+      tempSocket.connect(this.address, 50);
       tempSocket.isConnected();
       tempSocket.close();
       return true;
@@ -284,7 +284,7 @@ public class  Client {
                 break;
               }
 
-              Thread.sleep(1000);
+              Thread.sleep(2000);
               repairConnection();
             }
 
