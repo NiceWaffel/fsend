@@ -2,6 +2,7 @@ package com.waffel.fsend;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,13 +15,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    Intent intent;
+    private static final int CREATE_FILE = 1;
+
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         final Thread initF = new Thread(new Runnable() {
             @Override
             public void run() {
-                FileExchanger.init("haha");
+                FileExchanger.init("", MainActivity.this);
             }
         });
         initF.start();
@@ -119,6 +124,24 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
 
+    public void writeFile(String filename, byte[] fileContents) {
+        try {
+            FileOutputStream fos = new FileOutputStream(new File("/mnt/sdcard/bluetooth" + File.separator + filename));
+            fos.write(fileContents);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        //Intent i = new Intent();
+        //i.addCategory(Intent.CATEGORY_OPENABLE);
+        //i.setType("*/*");
+        //i.putExtra(Intent.EXTRA_TITLE, filename);
+
+        //startActivityForResult(i, CREATE_FILE);
     }
 }

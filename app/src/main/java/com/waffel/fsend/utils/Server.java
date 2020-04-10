@@ -1,5 +1,8 @@
 package com.waffel.fsend.utils;
 
+import android.content.Intent;
+import android.provider.MediaStore;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -11,6 +14,8 @@ import java.nio.file.Files;
 
 import com.blogspot.debukkitsblog.net.Datapackage;
 import com.blogspot.debukkitsblog.net.Executable;
+import com.waffel.fsend.FileExchanger;
+import com.waffel.fsend.MainActivity;
 
 public class Server extends com.blogspot.debukkitsblog.net.Server {
 	private final String outputDir;
@@ -69,25 +74,10 @@ public class Server extends com.blogspot.debukkitsblog.net.Server {
 			public void run(Datapackage pack, Socket socket) {
 				sendReply(socket, "Received");
 
-				String filename = ((String) pack.get(1));
-				String outputDir = Server.this.outputDir;
-				if (outputDir.contains("\\") && File.separatorChar != '\\')
-					outputDir = outputDir.replace('\\', '/');
-				else if (outputDir.contains("/") && File.separatorChar != '/')
-					outputDir = outputDir.replace('/', '\\');
-				if (!outputDir.endsWith(File.separator))
-					outputDir += File.separator;
-				File file = new File(outputDir + filename);
-				try {
-					String tempPath = file.getAbsolutePath();
-					tempPath = tempPath.substring(0, tempPath.lastIndexOf(File.separatorChar));
-					new File(tempPath).mkdirs();
-					Files.write(file.toPath(), (byte[]) pack.get(2));
-				} catch (IOException e) {
-					e.printStackTrace();
-					Server.this.sendMessage(new RemoteClient("_DEFAULT_ID_", socket), "/error", "Error Saving File", e);
-					return;
-				}
+				String filename = (String) pack.get(1);
+				byte[] file_contents = (byte[]) pack.get(2);
+
+				((MainActivity) FileExchanger.getContext()).writeFile(filename, file_contents);
 
 				Server.this.sendMessage(new RemoteClient("_DEFAULT_ID_", socket), "/success");
 			}

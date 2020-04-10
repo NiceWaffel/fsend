@@ -1,5 +1,7 @@
 package com.waffel.fsend;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,14 +23,21 @@ public class FileExchanger {
 	private static Server server = null;
 	private static Client client = null;
 
+	private static Context context;
+
 	private static final int port = 44444;
 	
 	/**
 	 * Init the Server and Client.
 	 */
-	public static void init(String outputDir) {
+	public static void init(String outputDir, Context context) {
 		server = new Server(port, true, outputDir);
 		client = new Client();
+		FileExchanger.context = context;
+	}
+
+	public static Context getContext() {
+		return context;
 	}
 
 	/**
