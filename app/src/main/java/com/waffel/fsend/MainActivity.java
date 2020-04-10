@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final int CREATE_FILE = 1;
 
     private Intent intent;
 
@@ -128,20 +127,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void writeFile(String filename, byte[] fileContents) {
         try {
-            FileOutputStream fos = new FileOutputStream(new File("/mnt/sdcard/bluetooth" + File.separator + filename));
+            File dir = getDefaultDirectory();
+            initializeFsendDirectory(dir.getAbsolutePath());
+
+            File file = new File(dir, filename);
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
             fos.write(fileContents);
             fos.flush();
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public static synchronized void initializeFsendDirectory(String path) throws IOException {
+        // Create specified directory if it doesn't exit
+        File dir = new File(path);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Failed to create Fsend directory");
+        }
+        if (!dir.canWrite()) {
+            throw new IOException("No write access to Fsend directory");
+        }
+        // Add a .nomedia file to it if it doesn't exist
+        File nomedia = new File(dir, ".nomedia");
+        if (!nomedia.exists()) {
+            try {
+                nomedia.createNewFile();
+            } catch (IOException e) {
+                throw new IOException("Failed to create .nomedia file");
+            }
+        }
+    }
 
-        //Intent i = new Intent();
-        //i.addCategory(Intent.CATEGORY_OPENABLE);
-        //i.setType("*/*");
-        //i.putExtra(Intent.EXTRA_TITLE, filename);
-
-        //startActivityForResult(i, CREATE_FILE);
+    public static File getDefaultDirectory() {
+        return new File(Environment.getExternalStorageDirectory(), "fsend");
     }
 }
