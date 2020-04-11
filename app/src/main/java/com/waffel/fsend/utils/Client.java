@@ -12,6 +12,7 @@ import java.nio.file.Files;
 
 import com.blogspot.debukkitsblog.net.Datapackage;
 import com.blogspot.debukkitsblog.net.Executable;
+import com.waffel.fsend.FileExchanger;
 
 public class Client {
 
@@ -46,10 +47,8 @@ public class Client {
 		client = new com.blogspot.debukkitsblog.net.Client(ip, port, timeout);
 		client.setMuted(true);
 
-		if(ping) {
-			ping();
+		if(ping)
 			return;
-		}
 
 		registerMethods();
 		client.start();
@@ -89,7 +88,10 @@ public class Client {
 		return this.sendMessage("/filetransfer", filename, bytes);
 	}
 
-	public boolean ping() {
-		return client.isServerReachable();
+	public String ping() {
+		Datapackage dp = this.sendMessage("/ping");
+		if(dp != null && dp.get(0).equals("/pong"))
+			return (String) dp.get(1);
+		return null;
 	}
 }

@@ -68,16 +68,19 @@ public class FileExchanger {
 	}
 
 
-	public static String[] queryIPs() {
+	public static List<String[]> queryIPs() {
 		String ip;
-		List<String> validIPs = new ArrayList<String>();
+		List<String[]> ips = new ArrayList<>();
 		for(int i = 1; i < 255; i++) {
 			System.out.println(i);
 			ip = "192.168.178." + i;
-			client.start(ip, port, 50, true);
-			if(client.ping())
-				validIPs.add(ip);
+			client.start(ip, port, 100, true);
+			String[] ipAndHost = new String[2];
+			ipAndHost[0] = client.ping();
+			ipAndHost[1] = ip;
+			ips.add(ipAndHost);
 		}
-		return validIPs.toArray(new String[validIPs.size()]);
+		return ips;
 	}
+
 }

@@ -21,10 +21,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private Intent intent;
+    private List<String[]> ips;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initF.start();
+        try {
+            initF.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Button scanB = findViewById(R.id.scan_button);
+        scanB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ips = FileExchanger.queryIPs();
+                    }
+                }).start();
+            }
+        });
 
         intent = getIntent();
         String action = intent.getAction();
@@ -47,11 +67,6 @@ public class MainActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        initF.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     handleIntent(intent);
                 }
             }).start();
@@ -90,18 +105,18 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             return;
         }
-        final String[] ips = FileExchanger.queryIPs();
+        ips = FileExchanger.queryIPs();
         System.out.println("Finished Query!");
 
         final ViewGroup layout = (ViewGroup) findViewById(R.id.list_layout);
 
-        for(int i = 0; i < ips.length; i++) {
+        for(int i = 0; i < ips.size(); i++) {
             final int j = i;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Button b = new Button(MainActivity.this);
-                    b.setText(ips[j]);
+                    b.setText(ips.get(j)[0] + " @ " + ips.get(j)[1]);
                     b.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     b.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        FileExchanger.sendIS(is, filename, ips[j]);
+                                        FileExchanger.sendIS(is, filename, ips.get(j)[1]);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -129,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             File dir = getDefaultDirectory();
             initializeFsendDirectory(dir.getAbsolutePath());
+
+            // TODO REQUEST PERMISSION
 
             File file = new File(dir, filename);
             file.createNewFile();

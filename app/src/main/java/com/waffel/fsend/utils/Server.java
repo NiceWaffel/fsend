@@ -1,6 +1,7 @@
 package com.waffel.fsend.utils;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -90,6 +91,24 @@ public class Server extends com.blogspot.debukkitsblog.net.Server {
 				sendReply(socket, "Received");
 			}
 		});
+		this.registerMethod("/ping", new Executable() {
+			@Override
+			public void run(Datapackage pack, Socket socket) {
+				Server.lastMessageHostAddress = socket.getInetAddress().getHostAddress();
+				Server.lastMessagePort = socket.getLocalPort();
+				Server.this.sendMessage(new RemoteClient("_DEFAULT_ID_", socket), "/pong", getHostName());
+			}
+		});
+	}
+
+	public String getHostName() {
+		try {
+			InetAddress ad = InetAddress.getLocalHost();
+			return ad.getHostName();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return "Unknown Host";
 	}
 	
 	private void printIp() {
